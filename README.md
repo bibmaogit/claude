@@ -70,4 +70,4 @@ Use a different `utm_content` per post (e.g. `reel-12`, `story-sep3`, `tiktok-ho
 - Privacy: you're collecting personal data – add a short privacy note/consent line to the form if you market to people in NZ/Malaysia/EU.
 
 ## Ideas to extend
-Auto-reply email via `MailApp`, a UTM/source column for tracking which social post drove the lead, daily summary to WhatsApp, or a Meta Pixel/TikTok Pixel for retargeting.
+Auto-reply email via `MailApp`, a daily lead summary to WhatsApp, or a Meta Pixel/TikTok Pixel for retargeting.
