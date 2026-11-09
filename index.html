@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NZ Malaya – Get in Touch</title>
+  <style>
+    :root { --bg:#f4f7f6; --card:#fff; --ink:#14302b; --muted:#5b6f6a; --brand:#0f766e; --brand-d:#0b5a54; --err:#b42318; --ok:#067647; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#0e1917; --card:#16241f; --ink:#e8f2ef; --muted:#9bb2ac; --brand:#2dd4bf; --brand-d:#14b8a6; --err:#f97066; --ok:#47cd89; }
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; display:grid; place-items:center; padding:16px;
+           background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+    .card { width:100%; max-width:440px; background:var(--card); border-radius:16px; padding:28px 24px;
+            box-shadow:0 4px 24px rgba(0,0,0,.08); }
+    h1 { margin:0 0 4px; font-size:1.5rem; }
+    p.sub { margin:0 0 20px; color:var(--muted); }
+    label { display:block; font-weight:600; margin:14px 0 6px; font-size:.9rem; }
+    input[type=text], input[type=email], input[type=tel] {
+      width:100%; padding:12px; font-size:1rem; border-radius:10px;
+      border:1px solid color-mix(in srgb, var(--muted) 40%, transparent);
+      background:transparent; color:var(--ink); }
+    input:focus { outline:2px solid var(--brand); border-color:transparent; }
+    .hint { font-size:.8rem; color:var(--muted); margin-top:4px; }
+    button { width:100%; margin-top:22px; padding:14px; font-size:1rem; font-weight:700; border:0; border-radius:10px;
+             background:var(--brand); color:#fff; cursor:pointer; }
+    @media (prefers-color-scheme: dark) { button { color:#04211d; } }
+    button:hover { background:var(--brand-d); }
+    button:disabled { opacity:.6; cursor:wait; }
+    #msg { margin-top:16px; font-weight:600; min-height:1.4em; }
+    #msg.ok { color:var(--ok); } #msg.err { color:var(--err); }
+    .hp { position:absolute; left:-9999px; height:0; overflow:hidden; } /* honeypot */
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>NZ Malaya</h1>
+    <p class="sub">Leave your details and we'll reach out on WhatsApp.</p>
+
+    <form id="lead-form" novalidate>
+      <label for="name">Full name</label>
+      <input id="name" name="name" type="text" autocomplete="name" required maxlength="100">
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" required maxlength="150">
+
+      <label for="whatsapp">WhatsApp number</label>
+      <input id="whatsapp" name="whatsapp" type="tel" autocomplete="tel" inputmode="tel"
+             placeholder="+64 21 123 4567" required maxlength="25">
+      <div class="hint">Include your country code, e.g. +64 or +60.</div>
+
+      <div class="hp" aria-hidden="true">
+        <label>Leave blank <input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+      </div>
+
+      <button id="submit" type="submit">Send</button>
+      <div id="msg" role="status" aria-live="polite"></div>
+    </form>
+  </main>
+
+  <script>
+    // 1) Deploy apps-script/Code.gs as a Web App (see README), then paste its URL here.
+    const ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+    const form = document.getElementById("lead-form");
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("submit");
+
+    function show(text, cls) { msg.textContent = text; msg.className = cls || ""; }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.name = data.name.trim();
+      data.email = data.email.trim();
+      data.whatsapp = data.whatsapp.trim();
+
+      if (!data.name) return show("Please enter your name.", "err");
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) return show("Please enter a valid email.", "err");
+      if (data.whatsapp.replace(/\D/g, "").length < 8) return show("Please enter a valid WhatsApp number.", "err");
+      if (ENDPOINT.startsWith("PASTE_")) return show("Form not connected yet – see README step 4.", "err");
+
+      btn.disabled = true; show("Sending…");
+      try {
+        // text/plain avoids a CORS preflight, which Apps Script doesn't handle.
+        // no-cors means we can't read the reply, so success = request was sent.
+        await fetch(ENDPOINT, { method: "POST", mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(data) });
+        form.reset();
+        show("Thank you! We'll be in touch on WhatsApp soon.", "ok");
+      } catch (err) {
+        show("Something went wrong. Please try again.", "err");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
