@@ -56,6 +56,14 @@ Tip: the alert recipient can be a different number from the sending business num
 ### 5. Publish the form
 GitHub repo → **Settings → Pages → Deploy from branch** → pick your main branch, `/ (root)`. Your form is live at `https://<user>.github.io/<repo>/`. Link it from Instagram/TikTok/Facebook bios.
 
+## Tracking which post brought each lead
+Add UTM tags to the link you put on each post/bio. The form records them next to every lead (columns **Source, Medium, Campaign, Post / Content, Referrer**; no tags = `direct`).
+
+```
+https://<user>.github.io/<repo>/?utm_source=instagram&utm_medium=reel&utm_campaign=bali-trip&utm_content=reel-12
+```
+Use a different `utm_content` per post (e.g. `reel-12`, `story-sep3`, `tiktok-hook-b`), then filter or pivot the sheet to see which posts convert. If the link goes through Linktree, put the tagged URL as the Linktree button's destination.
+
 ## Notes
 - The Apps Script URL is public by design (the form must call it), so the script validates input, drops bot submissions (honeypot) and neutralises spreadsheet formula injection. Secrets stay in Script properties, not in this repo.
 - Whenever you edit `Code.gs`, use **Deploy → Manage deployments → Edit → New version** or changes won't go live.

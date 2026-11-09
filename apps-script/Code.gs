@@ -13,7 +13,9 @@
  */
 
 const SHEET_NAME = 'Leads';
-const HEADERS = ['Timestamp', 'Name', 'Email', 'WhatsApp', 'WhatsApp alert status'];
+const HEADERS = ['Timestamp', 'Name', 'Email', 'WhatsApp',
+                 'Source', 'Medium', 'Campaign', 'Post / Content', 'Referrer',
+                 'WhatsApp alert status'];
 
 function doPost(e) {
   try {
@@ -35,14 +37,20 @@ function doPost(e) {
     let sheet, row;
     try {
       sheet = getSheet_();
-      sheet.appendRow([new Date(), name, email, "'" + whatsapp, 'pending']); // ' keeps +/leading 0 intact
+      sheet.appendRow([new Date(), name, email, "'" + whatsapp,
+        clean_(data.utm_source, 100) || 'direct',
+        clean_(data.utm_medium, 100),
+        clean_(data.utm_campaign, 100),
+        clean_(data.utm_content, 100),
+        clean_(data.referrer, 200),
+        'pending']); // ' keeps +/leading 0 intact
       row = sheet.getLastRow();
     } finally {
       lock.releaseLock();
     }
 
     const status = notifyWhatsApp_(name, email, whatsapp);
-    sheet.getRange(row, 5).setValue(status);
+    sheet.getRange(row, HEADERS.length).setValue(status);
 
     return json_({ ok: true });
   } catch (err) {

@@ -67,6 +67,25 @@
     const msg = document.getElementById("msg");
     const btn = document.getElementById("submit");
 
+    // Which post/link brought this lead? Read from the page URL, e.g.
+    //   https://yoursite/?utm_source=instagram&utm_medium=reel&utm_campaign=bali-trip&utm_content=reel-12
+    // The first visit's values are remembered for the session, so they survive a page reload.
+    function attribution() {
+      const keys = ["utm_source", "utm_medium", "utm_campaign", "utm_content"];
+      let saved = {};
+      try { saved = JSON.parse(sessionStorage.getItem("attr") || "{}"); } catch (_) {}
+      const q = new URLSearchParams(location.search);
+      if (keys.some(k => q.get(k))) {
+        saved = {};
+        keys.forEach(k => { saved[k] = (q.get(k) || "").slice(0, 100); });
+        saved.referrer = (document.referrer || "").slice(0, 200);
+        try { sessionStorage.setItem("attr", JSON.stringify(saved)); } catch (_) {}
+      } else if (!saved.referrer && document.referrer) {
+        saved.referrer = document.referrer.slice(0, 200);
+      }
+      return saved;
+    }
+
     function show(text, cls) { msg.textContent = text; msg.className = cls || ""; }
 
     form.addEventListener("submit", async (e) => {
@@ -75,6 +94,7 @@
       data.name = data.name.trim();
       data.email = data.email.trim();
       data.whatsapp = data.whatsapp.trim();
+      Object.assign(data, attribution());
 
       if (!data.name) return show("Please enter your name.", "err");
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) return show("Please enter a valid email.", "err");
